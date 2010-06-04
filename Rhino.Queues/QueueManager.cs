@@ -50,6 +50,9 @@ namespace Rhino.Queues
 
 		public event Action<Endpoint> FailedToSendMessagesTo;
 
+        public QueueManager(string path)
+            : this (null,path) {}
+
 		public QueueManager(IPEndPoint endpoint, string path)
 		{
 			NumberOfMessagesToKeepInProcessedQueues = 100;
@@ -70,18 +73,27 @@ namespace Rhino.Queues
 				actions.Commit();
 			});
 
-			receiver = new Receiver(endpoint, AcceptMessages);
-			receiver.Start();
+
+            if (endpoint != null) //Dont Start Protocol Receiver Thread when running in Local Mode
+            {
+                receiver = new Receiver(endpoint, AcceptMessages);
+                receiver.Start();  
+            } 
 
 			HandleRecovery();
 
-			queuedMessagesSender = new QueuedMessagesSender(queueStorage, this);
-			sendingThread = new Thread(queuedMessagesSender.Send)
-			{
-				IsBackground = true,
-				Name = "Rhino Queue Sender Thread for " + path
-			};
-			sendingThread.Start();
+
+            if (endpoint != null) //Dont Start Protocol Sender Thread when running in Local Mode
+            {
+                queuedMessagesSender = new QueuedMessagesSender(queueStorage, this);
+                sendingThread = new Thread(queuedMessagesSender.Send)
+                {
+                    IsBackground = true,
+                    Name = "Rhino Queue Sender Thread for " + path
+                };
+                sendingThread.Start();
+            }
+			
 			purgeOldDataTimer = new Timer(PurgeOldData, null,
 				TimeSpan.FromMinutes(3),
 				TimeSpan.FromMinutes(3));
@@ -204,10 +216,10 @@ namespace Rhino.Queues
 
 			purgeOldDataTimer.Dispose();
 
-			queuedMessagesSender.Stop();
-			sendingThread.Join();
+			if (queuedMessagesSender != null) queuedMessagesSender.Stop();
+			if (sendingThread != null) sendingThread.Join();
 
-			receiver.Dispose();
+			if (receiver != null) receiver.Dispose();
 
 			while (currentlyInCriticalReceiveStatus > 0)
 			{
@@ -239,6 +251,8 @@ namespace Rhino.Queues
 
 		public void WaitForAllMessagesToBeSent()
 		{
+            EnsureModeIsNotLocal();
+
 			waitingForAllMessagesToBeSent = true;
 			try
 			{
@@ -400,6 +414,8 @@ namespace Rhino.Queues
 
 		public MessageId Send(Uri uri, MessagePayload payload)
 		{
+            EnsureModeIsNotLocal();
+
 			if (waitingForAllMessagesToBeSent)
 				throw new CannotSendWhileWaitingForAllMessagesToBeSentException("Currently waiting for all messages to be sent, so we cannot send. You probably have a race condition in your application.");
 
@@ -431,7 +447,13 @@ namespace Rhino.Queues
 			};
 		}
 
-		private void EnsureEnslistment()
+	    private void EnsureModeIsNotLocal()
+	    {
+	        if (endpoint == null)
+	            throw new InvalidOperationException("QueueManager running in local mode, you cannot send or receive messages from external queues in this mode.");
+	    }
+
+	    private void EnsureEnslistment()
 		{
 			AssertNotDisposedOrDisposing();
 
