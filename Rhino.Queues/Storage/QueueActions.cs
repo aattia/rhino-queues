@@ -62,6 +62,7 @@ namespace Rhino.Queues.Storage
 				Api.SetColumn(session, msgs, msgsColumns["subqueue"], message.SubQueue, Encoding.Unicode);
 				Api.SetColumn(session, msgs, msgsColumns["headers"], message.Headers.ToQueryString(), Encoding.Unicode);
 				Api.SetColumn(session, msgs, msgsColumns["status"], (int)messageStatus);
+                Api.SetColumn(session, msgs, msgsColumns["priority"], message.Priority);
 
 				updateMsgs.Save(bm.Bookmark, bm.Size, out bm.Size);
 			}
@@ -81,7 +82,7 @@ namespace Rhino.Queues.Storage
 
 		public PersistentMessage Dequeue(string subqueue)
 		{
-			Api.JetSetCurrentIndex(session, msgs, "by_sub_queue");
+			Api.JetSetCurrentIndex(session, msgs, "by_sub_queue_and_priority");
 			Api.MakeKey(session, msgs, subqueue, Encoding.Unicode, MakeKeyGrbit.NewKey);
 
 			if (Api.TrySeek(session, msgs, SeekGrbit.SeekGE) == false)
@@ -149,6 +150,7 @@ namespace Rhino.Queues.Storage
 					Data = Api.RetrieveColumn(session, msgs, msgsColumns["data"]),
 					Id = id,
 					SubQueue = subqueue,
+                    Priority = Api.RetrieveColumnAsInt16(session,msgs,msgsColumns["priority"]).Value,
 					Status = (MessageStatus)Api.RetrieveColumnAsInt32(session, msgs, msgsColumns["status"]).Value
 				};
 				return message;
@@ -229,7 +231,7 @@ namespace Rhino.Queues.Storage
 
 		public IEnumerable<PersistentMessage> GetAllMessages(string subQueue)
 		{
-			Api.JetSetCurrentIndex(session, msgs, "by_sub_queue");
+			Api.JetSetCurrentIndex(session, msgs, "by_sub_queue_and_priority");
 			Api.MakeKey(session, msgs, subQueue, Encoding.Unicode, MakeKeyGrbit.NewKey);
 			if (Api.TrySeek(session, msgs, SeekGrbit.SeekGE) == false)
 				yield break;
@@ -337,7 +339,7 @@ namespace Rhino.Queues.Storage
 
 		public PersistentMessage Peek(string subqueue)
 		{
-			Api.JetSetCurrentIndex(session, msgs, "by_sub_queue");
+			Api.JetSetCurrentIndex(session, msgs, "by_sub_queue_and_priority");
 			Api.MakeKey(session, msgs, subqueue, Encoding.Unicode, MakeKeyGrbit.NewKey);
 
 			if (Api.TrySeek(session, msgs, SeekGrbit.SeekGE) == false)

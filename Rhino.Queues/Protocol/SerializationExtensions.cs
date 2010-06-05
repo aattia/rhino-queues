@@ -31,6 +31,7 @@ namespace Rhino.Queues.Protocol
                         },
                         Queue = br.ReadString(),
                         SubQueue = br.ReadString(),
+                        Priority = br.ReadInt16(),
                         SentAt = DateTime.FromBinary(br.ReadInt64()),
                     };
                     var headerCount = br.ReadInt32();
@@ -63,6 +64,7 @@ namespace Rhino.Queues.Protocol
                     writer.Write(message.Id.MessageIdentifier.ToByteArray());
                     writer.Write(message.Queue);
                     writer.Write(message.SubQueue ?? "");
+                    writer.Write(message.Priority);
                     writer.Write(message.SentAt.ToBinary());
 
                     writer.Write(message.Headers.Count);

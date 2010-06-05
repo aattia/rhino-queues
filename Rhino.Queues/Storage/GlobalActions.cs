@@ -156,6 +156,7 @@ namespace Rhino.Queues.Storage
 				Api.SetColumn(session, outgoing, ColumnsInformation.OutgoingColumns["sent_at"], DateTime.Now.ToOADate());
 				Api.SetColumn(session, outgoing, ColumnsInformation.OutgoingColumns["send_status"], (int)OutgoingMessageStatus.NotReady);
 				Api.SetColumn(session, outgoing, ColumnsInformation.OutgoingColumns["queue"], queue, Encoding.Unicode);
+                Api.SetColumn(session, outgoing, ColumnsInformation.OutgoingColumns["priority"], payload.Priority);
 				Api.SetColumn(session, outgoing, ColumnsInformation.OutgoingColumns["subqueue"], subQueue, Encoding.Unicode);
 				Api.SetColumn(session, outgoing, ColumnsInformation.OutgoingColumns["headers"], payload.Headers.ToQueryString(),
                               Encoding.Unicode);
