@@ -16,5 +16,6 @@ namespace Rhino.Queues.Model
         public NameValueCollection Headers { get; set; }
         public byte[] Data { get; set; }
         public string SubQueue { get; set; }
+        public short Priority { get; set; }
     }
 }

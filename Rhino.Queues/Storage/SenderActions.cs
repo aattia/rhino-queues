@@ -76,6 +76,7 @@ namespace Rhino.Queues.Storage
                     Headers = HttpUtility.ParseQueryString(headerAsQueryString),
                     Queue = rowQueue,
                     SubQueue = Api.RetrieveColumnAsString(session, outgoing, ColumnsInformation.OutgoingColumns["subqueue"], Encoding.Unicode),
+                    Priority = Api.RetrieveColumnAsInt16(session, outgoing, ColumnsInformation.OutgoingColumns["priority"]).Value,
                     SentAt = DateTime.FromOADate(Api.RetrieveColumnAsDouble(session, outgoing, ColumnsInformation.OutgoingColumns["sent_at"]).Value),
                     Data = Api.RetrieveColumn(session, outgoing, ColumnsInformation.OutgoingColumns["data"]),
                     Bookmark = bookmark
@@ -196,6 +197,7 @@ namespace Rhino.Queues.Storage
                     Endpoint = new Endpoint(address, port),
                     Queue = Api.RetrieveColumnAsString(session, outgoing, ColumnsInformation.OutgoingColumns["queue"], Encoding.Unicode),
                     SubQueue = Api.RetrieveColumnAsString(session, outgoing, ColumnsInformation.OutgoingColumns["subqueue"], Encoding.Unicode),
+                    Priority = Api.RetrieveColumnAsInt16(session, outgoing, ColumnsInformation.OutgoingColumns["priority"]).Value,
                     SentAt = DateTime.FromOADate(Api.RetrieveColumnAsDouble(session, outgoing, ColumnsInformation.OutgoingColumns["sent_at"]).Value),
                     Data = Api.RetrieveColumn(session, outgoing, ColumnsInformation.OutgoingColumns["data"]),
                     Bookmark = bookmark

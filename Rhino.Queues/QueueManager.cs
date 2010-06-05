@@ -691,6 +691,7 @@ namespace Rhino.Queues
 					Queue = queue,
 					SentAt = DateTime.Now,
 					SubQueue = subqueue,
+                    Priority = payload.Priority,
 					Status = MessageStatus.EnqueueWait
 				});
 				actions.RegisterUpdateToReverse(Enlistment.Id, bookmark, MessageStatus.EnqueueWait, subqueue);

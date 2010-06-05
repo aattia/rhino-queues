@@ -87,9 +87,17 @@ namespace Rhino.Queues.Storage
                 grbit = ColumndefGrbit.None
             }, null, 0, out columnid);
 
+            Api.JetAddColumn(session, tableid, "priority", new JET_COLUMNDEF
+            {
+                coltyp = JET_coltyp.Short,
+                grbit = ColumndefGrbit.ColumnFixed | ColumndefGrbit.ColumnNotNULL
+            }, null, 0, out columnid);
+
             const string indexDef = "+subqueue\0\0";
             Api.JetCreateIndex(session, tableid, "by_sub_queue", CreateIndexGrbit.None, indexDef, indexDef.Length,
                                100);
+
+            
         }
 
         private void CreateMessagesTable()
@@ -153,12 +161,18 @@ namespace Rhino.Queues.Storage
                 grbit = ColumndefGrbit.None
             }, null, 0, out columnid);
 
+            Api.JetAddColumn(session, tableid, "priority", new JET_COLUMNDEF
+            {
+                coltyp = JET_coltyp.Short,
+                grbit = ColumndefGrbit.ColumnFixed | ColumndefGrbit.ColumnNotNULL
+            }, null, 0, out columnid);
+
             var indexDef = "+local_id\0\0";
             Api.JetCreateIndex(session, tableid, "pk", CreateIndexGrbit.IndexPrimary, indexDef, indexDef.Length,
                                100);
 
-			indexDef = "+subqueue\0+timestamp\0\0";
-            Api.JetCreateIndex(session, tableid, "by_sub_queue", CreateIndexGrbit.None, indexDef, indexDef.Length,
+			indexDef = "+subqueue\0+priority\0+timestamp\0\0";
+            Api.JetCreateIndex(session, tableid, "by_sub_queue_and_priority", CreateIndexGrbit.None, indexDef, indexDef.Length,
                                100);
 
             indexDef = "+instance_id\0+msg_id\0\0";

@@ -10,6 +10,7 @@ namespace Rhino.Queues
         }
 
         public byte[] Data { get; set; }
+        public short Priority { get; set; }
         public NameValueCollection Headers { get; set; }
     }
 }

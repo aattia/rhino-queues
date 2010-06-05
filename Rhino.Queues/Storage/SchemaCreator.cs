@@ -153,6 +153,12 @@ namespace Rhino.Queues.Storage
                 cp = JET_CP.Unicode
             }, null, 0, out columnid);
 
+            Api.JetAddColumn(session, tableid, "priority", new JET_COLUMNDEF
+            {
+                coltyp = JET_coltyp.Short,
+                grbit = ColumndefGrbit.ColumnFixed | ColumndefGrbit.ColumnNotNULL
+            }, null, 0, out columnid);
+
             Api.JetAddColumn(session, tableid, "headers", new JET_COLUMNDEF
             {
                 cbMax = 8192,
@@ -257,6 +263,12 @@ namespace Rhino.Queues.Storage
                 coltyp = JET_coltyp.Text,
                 grbit = ColumndefGrbit.None,
                 cp = JET_CP.Unicode
+            }, null, 0, out columnid);
+
+            Api.JetAddColumn(session, tableid, "priority", new JET_COLUMNDEF
+            {
+                coltyp = JET_coltyp.Short,
+                grbit = ColumndefGrbit.ColumnFixed | ColumndefGrbit.ColumnNotNULL
             }, null, 0, out columnid);
 
             Api.JetAddColumn(session, tableid, "headers", new JET_COLUMNDEF
